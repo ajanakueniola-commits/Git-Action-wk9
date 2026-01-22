@@ -2,10 +2,19 @@ provider "aws" {
   region = "us-east-2"
 }
 
-resource "aws_security_group" "allow_ssh_http" {
-  name = "allow_ssh_http"
+# Use default VPC
+data "aws_vpc" "default" {
+  default = true
+}
+
+# Security group for all instances
+resource "aws_security_group" "server_sg" {
+  name        = "server-sg"
+  description = "Allow SSH and HTTP"
+  vpc_id      = data.aws_vpc.default.id
 
   ingress {
+    description = "SSH"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
@@ -13,6 +22,7 @@ resource "aws_security_group" "allow_ssh_http" {
   }
 
   ingress {
+    description = "HTTP"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
@@ -25,37 +35,45 @@ resource "aws_security_group" "allow_ssh_http" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-}
-
-resource "aws_instance" "ansible" {
-  ami                    = "ami-06f1fc9ae5ae7f31e"
-  instance_type          = "c7i-flex.large"
-  key_name               = var.key_name
-  vpc_security_group_ids = [aws_security_group.allow_ssh_http.id]
 
   tags = {
-    Name = "Ansible-Server"
+    Name = "server-sg"
   }
 }
 
-resource "aws_instance" "java" {
-  ami                    = "ami-06f1fc9ae5ae7f31e"
+# Ansible Node
+resource "aws_instance" "ansible" {
+  ami                    = var.ami_id
   instance_type          = "c7i-flex.large"
   key_name               = var.key_name
-  vpc_security_group_ids = [aws_security_group.allow_ssh_http.id]
+  vpc_security_group_ids = [aws_security_group.server_sg.id]
+
+  tags = {
+    Name = "Ansible-Node"
+  }
+}
+
+# Java Node
+resource "aws_instance" "java" {
+  ami                    = var.ami_id
+  instance_type          = "c7i-flex.large"
+  key_name               = var.key_name
+  vpc_security_group_ids = [aws_security_group.server_sg.id]
 
   tags = {
     Name = "Java-Node"
   }
 }
 
+# Nginx Node
 resource "aws_instance" "nginx" {
-  ami                    = "ami-06f1fc9ae5ae7f31e"
+  ami                    = var.ami_id
   instance_type          = "c7i-flex.large"
   key_name               = var.key_name
-  vpc_security_group_ids = [aws_security_group.allow_ssh_http.id]
+  vpc_security_group_ids = [aws_security_group.server_sg.id]
 
   tags = {
     Name = "Nginx-Node"
   }
 }
+
