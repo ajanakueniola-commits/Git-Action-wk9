@@ -1,0 +1,24 @@
+---
+- name: Install Java on Java Node
+  hosts: java
+  become: yes
+  tasks:
+    - name: Install Java (Amazon Linux)
+      yum:
+        name: java-17-amazon-corretto
+        state: present
+
+- name: Install and start Nginx on Nginx Node
+  hosts: nginx
+  become: yes
+  tasks:
+    - name: Install Nginx
+      yum:
+        name: nginx
+        state: present
+
+    - name: Start and enable Nginx
+      service:
+        name: nginx
+        state: started
+        enabled: yes

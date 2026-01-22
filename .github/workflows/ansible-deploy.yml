@@ -1,0 +1,81 @@
+name: Ansible Deployment (Java + Nginx)
+
+on:
+  workflow_dispatch:
+    inputs:
+      ansible_ip:
+        description: "Public IP of Ansible node"
+        required: true
+      java_ip:
+        description: "Public IP of Java node"
+        required: true
+      nginx_ip:
+        description: "Public IP of Nginx node"
+        required: true
+
+jobs:
+  ansible:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create SSH private key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_PRIVATE_KEY }}" > ~/.ssh/ec2-key.pem
+          chmod 400 ~/.ssh/ec2-key.pem
+
+      - name: SSH to Ansible Node and Deploy
+        run: |
+          ssh -o StrictHostKeyChecking=no \
+              -i ~/.ssh/ec2-key.pem \
+              ec2-user@${{ github.event.inputs.ansible_ip }} << EOF
+
+            mkdir -p ~/ansible
+            cd ~/ansible
+
+            cat << INVENTORY > hosts.ini
+            [java]
+            ${{ github.event.inputs.java_ip }}
+
+            [nginx]
+            ${{ github.event.inputs.nginx_ip }}
+
+            [all:vars]
+            ansible_user=ec2-user
+            ansible_ssh_private_key_file=~/ec2-key.pem
+            ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+            INVENTORY
+
+            cat << PLAYBOOK > site.yml
+            ---
+            - name: Install Java
+              hosts: java
+              become: yes
+              tasks:
+                - name: Install Java
+                  yum:
+                    name: java-17-amazon-corretto
+                    state: present
+
+            - name: Install and Start Nginx
+              hosts: nginx
+              become: yes
+              tasks:
+                - name: Install Nginx
+                  yum:
+                    name: nginx
+                    state: present
+
+                - name: Start Nginx
+                  service:
+                    name: nginx
+                    state: started
+                    enabled: yes
+            PLAYBOOK
+
+            chmod 400 ~/ec2-key.pem
+            ansible-playbook -i hosts.ini site.yml
+          EOF
