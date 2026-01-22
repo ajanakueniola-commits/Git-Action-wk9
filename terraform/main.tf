@@ -1,5 +1,5 @@
 provider "aws" {
-  region = "us-east-1"
+  region = "us-east-2"
 }
 
 resource "aws_security_group" "allow_ssh_http" {
@@ -29,7 +29,7 @@ resource "aws_security_group" "allow_ssh_http" {
 
 resource "aws_instance" "ansible" {
   ami           = var.ami_id
-  instance_type = "t2.micro"
+  instance_type = "c7i-flex.large"
   key_name      = var.key_name
   security_groups = [aws_security_group.allow_ssh_http.name]
 
@@ -40,7 +40,7 @@ resource "aws_instance" "ansible" {
 
 resource "aws_instance" "java" {
   ami           = var.ami_id
-  instance_type = "t2.micro"
+  instance_type = "c7i-flex.large"
   key_name      = var.key_name
   security_groups = [aws_security_group.allow_ssh_http.name]
 
@@ -51,7 +51,7 @@ resource "aws_instance" "java" {
 
 resource "aws_instance" "nginx" {
   ami           = var.ami_id
-  instance_type = "t2.micro"
+  instance_type = "c7i-flex.large"
   key_name      = var.key_name
   security_groups = [aws_security_group.allow_ssh_http.name]
 
