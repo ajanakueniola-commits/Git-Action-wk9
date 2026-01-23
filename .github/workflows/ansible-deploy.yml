@@ -52,7 +52,7 @@ jobs:
             cat << PLAYBOOK > site.yml
             ---
           - name: Install Java
-            host: java
+            hosts: Java
               become: true
               tasks:
           - name: Install Java
@@ -61,17 +61,17 @@ jobs:
                     state: present
 
           - name: Install and Start Nginx
-              host: nginx
+              hosts: Nginx
               become: true
               tasks:
           - name: Install Nginx
                   yum:
-                    name: nginx
+                    name: Nginx
                     state: present
 
             - name: Start Nginx
                   service:
-                    name: nginx
+                    name: Nginx
                     state: started
                     enabled: yes
             PLAYBOOK
