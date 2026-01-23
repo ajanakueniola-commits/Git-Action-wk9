@@ -36,7 +36,7 @@ jobs:
             mkdir -p ~/ansible
             cd ~/ansible
 
-            cat << INVENTORY > hosts.ini
+            cat << INVENTORY > host.ini
             [java]
             ${{ github.event.inputs.java_ip }}
 
@@ -52,8 +52,8 @@ jobs:
             cat << PLAYBOOK > site.yml
             ---
             - name: Install Java
-              hosts: java
-              become: yes
+              host: java
+              become: true
               tasks:
                 - name: Install Java
                   yum:
@@ -61,8 +61,8 @@ jobs:
                     state: present
 
             - name: Install and Start Nginx
-              hosts: nginx
-              become: yes
+              host: nginx
+              become: true
               tasks:
                 - name: Install Nginx
                   yum:
@@ -77,5 +77,5 @@ jobs:
             PLAYBOOK
 
             chmod 400 ~/ec2-key.pem
-            ansible-playbook -i hosts.ini site.yml
+            ansible-playbook -i host.ini site.yml
           EOF
