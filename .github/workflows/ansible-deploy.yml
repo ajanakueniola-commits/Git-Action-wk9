@@ -51,25 +51,25 @@ jobs:
 
             cat << PLAYBOOK > site.yml
             ---
-            - name: Install Java
-              host: java
+          - name: Install Java
+            host: java
               become: true
               tasks:
-                - name: Install Java
+          - name: Install Java
                   yum:
                     name: java-17-amazon-corretto
                     state: present
 
-            - name: Install and Start Nginx
+          - name: Install and Start Nginx
               host: nginx
               become: true
               tasks:
-                - name: Install Nginx
+          - name: Install Nginx
                   yum:
                     name: nginx
                     state: present
 
-                - name: Start Nginx
+            - name: Start Nginx
                   service:
                     name: nginx
                     state: started
