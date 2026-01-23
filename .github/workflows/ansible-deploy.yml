@@ -24,7 +24,7 @@ jobs:
       - name: Create SSH private key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2-key.pem
+          echo "${{ secrets.AWS_SSH_KEY }}" > ~/.ssh/ec2-key.pem
           chmod 400 ~/.ssh/ec2-key.pem
 
       - name: SSH to Ansible Node and Deploy
