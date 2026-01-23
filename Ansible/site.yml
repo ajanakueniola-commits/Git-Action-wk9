@@ -1,7 +1,7 @@
 ---
 - name: Install Java on Java Node
   hosts: java
-  become: yes
+  become: true
   tasks:
     - name: Install Java (Amazon Linux)
       yum:
@@ -10,7 +10,7 @@
 
 - name: Install and start Nginx on Nginx Node
   hosts: nginx
-  become: yes
+  become: true
   tasks:
     - name: Install Nginx
       yum:
